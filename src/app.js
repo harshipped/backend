@@ -23,9 +23,26 @@ app.use(express.static("public"));
 
 app.use(cookieParser());
 
+// Add this BEFORE your userRouter line in app.js
+app.post("/api/v1/users/test", (req, res) => {
+  console.log("Body:", req.body);
+  console.log("Files:", req.files);
+  res.json({ success: true });
+});
+
 //importing routes
 import userRouter from "./routes/user.routes.js";
 
 app.use("/api/v1/users", userRouter);
+
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Something went wrong";
+  return res.status(statusCode).json({
+    success: false,
+    message,
+    errors: err.errors || [],
+  });
+});
 
 export { app };
